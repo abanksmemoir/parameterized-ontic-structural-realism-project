@@ -12,6 +12,19 @@ ParametricSlot: A named parameter at a node with type, description, and known op
 TheoryGraph: A DAG of nodes with metadata and derived edges from presupposes relations.
 
 TheoryFile: A resolved theory-graph with all parametric choices made, plus provenance.
+
+Design intent (theory nesting):
+    The system's unit of output is a theory-file, not a graph. A TheoryGraph is a
+    template — it declares what's possible. A TheoryFile is a commitment — it records
+    what was chosen. The system produces and manages a flat collection of theory-files,
+    each representing a distinct path through the parametric lattice. Different
+    parameterizations are different theories, not variants within a single theory.
+    The lattice structure lives in the graphs' presupposes relations and fork provenance,
+    not in filesystem hierarchy.
+
+    The slug+hash naming convention on theory-files is designed for human navigation
+    (slug) and machine deduplication (hash), with filenames short enough for ingestion
+    by tools like NotebookLM that impose title-length constraints.
 """
 
 from dataclasses import dataclass, field
@@ -375,7 +388,34 @@ class ForkPoint:
 
 
 class TheoryFile:
-    """A resolved theory-graph with all parametric choices made."""
+    """A resolved theory-graph with all parametric choices made.
+
+    A TheoryFile is the project's primary artifact — a self-contained structural
+    identity claim. Each file encodes a complete, well-formed physical theory as
+    the totality of its parametric choices from axioms to physical content.
+
+    Intended workflow (plug-and-play parameterization):
+        1. Load any existing TheoryFile (or start from a template TheoryGraph).
+        2. Toggle parametric choices at any depth in the DAG.
+        3. Propagate consequences upward.
+        4. Save as a new TheoryFile with its own slug+hash filename.
+
+    The flat collection of saved TheoryFiles IS the lattice, represented as
+    individual artifacts rather than a single monolithic structure. Each file
+    stands alone; the relationships between files (shared subgraphs, fork
+    provenance) are recoverable from the metadata and node structure inside them.
+
+    Naming convention:
+        Filename = {human_slug}-{fingerprint}.json
+        Slug encodes major structural identity (theory family, logic, foundation,
+        gauge group, generation count). Fingerprint is truncated SHA256 of all
+        resolved parametric values. Must be short enough for NotebookLM source titles.
+
+    Distinguished point:
+        One TheoryFile in any collection is the distinguished point — the
+        configuration whose parametric choices match actuality. The system marks
+        this via metadata, not by treating it as structurally privileged.
+    """
 
     def __init__(
         self,

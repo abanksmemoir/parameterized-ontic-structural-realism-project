@@ -3,6 +3,26 @@ Graph operations: build, traverse, validate, and propagate changes.
 
 This module provides higher-level operations on theory graphs beyond
 the basic topological sort and ancestor/descendant queries.
+
+Design intent (plug-and-play):
+    The core operation is: take a resolved TheoryFile, change one parametric
+    choice, and produce a new TheoryFile. resolve_parametric_choices() handles
+    the "make choices" step; propagate_change() identifies which downstream
+    nodes are affected. Together they support the plug-and-play workflow:
+
+        load theory → toggle parameter → propagate → save as new file
+
+    Currently propagate_change() only identifies affected nodes — it does not
+    recompute their content. When external tools are wired in (GAP for group
+    theory, FeynRules for Lagrangians, etc.), propagation will trigger actual
+    recomputation at each affected node via its tool binding. For now, it
+    serves as the structural skeleton for that future capability.
+
+    The key invariant: changing a parametric choice at node N should never
+    silently leave a downstream node unchanged if that node's structural
+    content depends on the changed provision. The system should either
+    recompute or flag as stale. This is the "functorial composition"
+    requirement from the project briefing.
 """
 
 from typing import Dict, List, Set, Optional, Any, Callable

@@ -150,6 +150,60 @@ Both use the same mathematical machinery (Levi-Civita connection, curvature, etc
 
 The `QFT` node includes a parametric slot for time-asymmetry convention (retarded, advanced, Wheeler-Feynman, or symmetric). This prevents the arrow of time from sneaking in as an undeclared assumption at the wrong structural level.
 
+## Design Direction: Theory Nesting and Plug-and-Play Parameterization
+
+The ambition is not to model a single theory. The system models a **lattice of theories**. Each saved theory-file is a specific path through the parametric space — a resolved configuration of choices at every node from axioms to physical content. The system's job is to make it trivially easy to:
+
+1. Start from any existing theory-file (SM, GR, or something novel)
+2. Toggle one or more parametric choices at any depth
+3. Let the consequences propagate upward through the DAG
+4. Save the result as a new, distinct theory-file
+
+Each file is a self-contained artifact. The filename encodes enough to identify it at a glance; the metadata inside encodes everything needed for machine recovery. A flat directory of theory-files is the output: no nesting, no hierarchy in the filesystem. The hierarchy is *in the graphs themselves* — the lattice structure lives in the presupposes relations and fork provenance, not in folder structure. This matters because the files need to be ingestible by tools like NotebookLM that want a flat collection of documents.
+
+### What a theory-file represents
+
+A theory-file is not a "configuration file" in the software engineering sense. It is a **structural identity claim**: "here is a complete, well-formed physical theory, expressed as the totality of its structural presuppositions and parametric choices." The Standard Model theory-file says: classical logic, first-order quantification, ZFC, groups through to Lie algebras, representations, connections on internal gauge bundles, quantized via path integral with retarded propagator convention, gauge group SU(3)×SU(2)×U(1), three fermion generations, Higgs doublet, specific Yukawa couplings. Every one of those is a choice. A different choice at any point is a different theory — equally well-formed, differently parameterized, potentially non-actual.
+
+### The distinguished point
+
+One theory-file in the collection is distinguished: the one whose parametric choices match actuality. This is the Standard Model (or more precisely, the SM+GR composite once both branches are populated). It bears an identity relationship to the world. The rest are legitimate structures that do not bear that relationship. The system doesn't editorialize — it doesn't flag the actual-world configuration as "correct" and others as "wrong." It marks it as the **distinguished point** in the parametric space, the configuration that does empirical work.
+
+### Slug and naming convention
+
+Filenames use a hybrid: a human-readable slug encoding the major structural identity (theory family, logic, foundation, gauge group, generation count) plus a truncated SHA256 hash of the full parametric state. The slug is for Mike; the hash is for the machine. Example:
+
+```
+SM-CL_ZFC_SU321-3gen-b7a2f3c1.json
+GR-CL_ZFC_Lorentz-4d-e91c0a7b.json
+SM-IL_TT_SU5-3gen-2f8d4e1a.json      (intuitionistic logic, type theory, SU(5) GUT)
+```
+
+The slug must be short enough for NotebookLM to encode as a source title. The hash disambiguates when two theories share a slug but differ in fine-grained parameters (coupling constants, mixing angles, etc.).
+
+### How the slug is generated (current limitation and planned fix)
+
+The current `_generate_slug()` in `schema.py` concatenates resolved values naively. This needs to be replaced with a smarter system that:
+- Pulls theory family from the graph's terminal nodes (SM, GR, or composite)
+- Pulls logic choice (CL, IL) from Layer 0
+- Pulls foundation (ZFC, TT) from Layer 1
+- Pulls gauge group from the gauge layer (abbreviated: SU321, SU5, SO10)
+- Pulls generation count if applicable
+- Ignores runtime parameters (coupling constant values don't belong in the slug)
+
+### Future: the web frontend and other consumers
+
+The API core is designed to be consumed by any frontend. A web app is contemplated but not prioritized — the theory-files and the Python API are the primary interface for now. When a frontend is built, it should:
+- Let the user see the full graph for any theory-file
+- Let the user toggle parametric choices and see which nodes are affected (via `propagate_change`)
+- Let the user save the result as a new theory-file
+- Let the user overlay two theory-files and see the structural diff
+- Let the user browse the flat collection of saved theories
+
+The API already supports all of this. The frontend is presentation, not logic.
+
+---
+
 ## Limitations and Future Work
 
 ### Current Scope (v0.1.0)
@@ -161,12 +215,14 @@ The `QFT` node includes a parametric slot for time-asymmetry convention (retarde
 
 ### Not Yet Implemented
 
-1. **Parametric propagation**: When a choice at a lower node is toggled, automatically recompute dependencies
-2. **Wrapping external tools**: Integration with GAP, LieART, FeynRules, SARAH
-3. **Interactive exploration**: UI/web interface for navigating the lattice
-4. **Anomaly computation**: Actual algebraic verification of anomaly cancellation
-5. **Unification frameworks**: Explicit modeling of KK, string theory, other unification proposals
-6. **More theories**: Beyond SM and GR (QED, Weak interaction alone, ΛCDM, etc.)
+1. **Smarter slug generation**: Pull structurally significant choices into the slug, ignore runtime values
+2. **Parametric propagation**: When a choice at a lower node is toggled, automatically recompute dependencies and flag affected nodes as "stale"
+3. **Wrapping external tools**: Integration with GAP, LieART, FeynRules, SARAH — each wrapped with the project's parametric interface so a node can invoke computation
+4. **Interactive exploration**: Web frontend consuming the API core
+5. **Anomaly computation**: Actual algebraic verification of anomaly cancellation at the ANOM node
+6. **Unification frameworks**: Explicit modeling of KK, string theory, other unification proposals as theory-files that collapse the SM/GR fork into shared ancestry
+7. **More theories**: Beyond SM and GR (QED alone, weak interaction alone, ΛCDM, electroweak, etc.) — each as its own template and set of theory-files
+8. **Time symmetry node**: Currently time-asymmetry is a parametric slot on QFT. Per the supplementary briefing, it should be elevated to a separate node above both SM and GR branches so toggling it propagates through both simultaneously
 
 ## Installation and Usage
 

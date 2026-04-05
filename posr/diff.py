@@ -3,6 +3,28 @@ Cross-theory structural comparison.
 
 Identifies shared subgraphs, fork points, and theory-specific branches
 between different theory-graphs (e.g., SM vs GR).
+
+Design intent:
+    The primary application is comparing theory-files to make structural
+    relationships precise and visible. When you diff SM and GR, the system
+    should show you exactly which nodes they share (logic through manifolds),
+    exactly where they fork (connection type: internal gauge bundle vs tangent
+    bundle), and exactly what each branch adds that the other doesn't.
+
+    This is not just a code utility — it's the project's main analytical
+    instrument. The claim that SM and GR "reduplicate" connection/curvature
+    machinery on different bundles, and that unification proposals amount to
+    collapsing that reduplication into shared ancestry, is a claim the diff
+    operation makes testable.
+
+    Contemplated extensions:
+    - Overlay mode: given two theory-files, produce a merged visualization
+      showing shared subgraph, fork point, and divergent branches
+    - Unification testing: given a proposed unification theory-file, verify
+      that SM and GR are both derivable as parametric specializations of it
+    - Lattice navigation: given a collection of theory-files, compute the
+      full lattice structure (which theories are parametric neighbors, which
+      share the most upstream structure, etc.)
 """
 
 from typing import Dict, List, Set, Any, Optional, Tuple
