@@ -1,0 +1,549 @@
+{
+  "meta": {
+    "project": "Parameterized Ontic Structural Realism",
+    "description": "Structural dependency graph from logical axioms to the Standard Model Lagrangian. Each node declares what it presupposes, what it provides to layers above, and what is parametric (swappable without breaking the interface contract).",
+    "version": "0.1.0",
+    "date": "2026-04-05"
+  },
+  "layers": [
+    {
+      "index": 0,
+      "name": "Logic",
+      "description": "Choice of deductive system. Everything downstream inherits these commitments.",
+      "nodes": [
+        {
+          "id": "CL",
+          "label": "Classical logic",
+          "description": "Law of excluded middle, double negation elimination, material conditional. The default substrate for most mathematics.",
+          "presupposes": [],
+          "provides": [
+            "Proof by contradiction",
+            "De Morgan duality",
+            "Boolean algebra"
+          ],
+          "parametric": [
+            "LEM can be dropped → intuitionistic",
+            "Explosion can be dropped → paraconsistent"
+          ]
+        },
+        {
+          "id": "IL",
+          "label": "Intuitionistic logic",
+          "description": "Constructive reasoning without LEM. Proofs are programs (BHK interpretation). Naturally typed.",
+          "presupposes": [],
+          "provides": [
+            "Constructive existence proofs",
+            "Curry-Howard correspondence"
+          ],
+          "parametric": [
+            "Can add LEM back selectively",
+            "Decidability of specific propositions"
+          ]
+        },
+        {
+          "id": "FOL",
+          "label": "First-order quantification",
+          "description": "Universal and existential quantification over individuals. The grammar that lets you state axioms about mathematical objects.",
+          "presupposes": ["CL"],
+          "provides": [
+            "Quantified statements",
+            "Model theory basics"
+          ],
+          "parametric": [
+            "Choice of logic (classical vs intuitionistic)",
+            "Sorts (single vs many-sorted)"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Foundations",
+      "description": "Set-theoretic or type-theoretic substrate. Determines what mathematical objects you can construct.",
+      "nodes": [
+        {
+          "id": "ZFC",
+          "label": "ZFC set theory",
+          "description": "Zermelo-Fraenkel with Choice. The ambient universe for most working mathematics. Provides powersets, infinity, well-ordering.",
+          "presupposes": ["CL", "FOL"],
+          "provides": [
+            "Infinite sets",
+            "Powersets",
+            "Well-ordering",
+            "Cartesian products"
+          ],
+          "parametric": [
+            "Axiom of Choice (drop → ZF)",
+            "Continuum hypothesis (independent)",
+            "Foundation (drop → non-well-founded sets)"
+          ]
+        },
+        {
+          "id": "TT",
+          "label": "Type theory",
+          "description": "Martin-Löf or variants. Types as propositions, terms as proofs. Foundation for Lean/Coq.",
+          "presupposes": ["IL"],
+          "provides": [
+            "Dependent types",
+            "Inductive types",
+            "Universe hierarchy"
+          ],
+          "parametric": [
+            "Univalence axiom (add → HoTT)",
+            "Impredicativity",
+            "Universe levels"
+          ]
+        },
+        {
+          "id": "CAT",
+          "label": "Category theory",
+          "description": "Objects, morphisms, functors, natural transformations. The language of structural relationships between mathematical domains.",
+          "presupposes": ["ZFC"],
+          "provides": [
+            "Functors",
+            "Natural transformations",
+            "Limits/colimits",
+            "Adjunctions"
+          ],
+          "parametric": [
+            "Size (small vs large categories)",
+            "Enrichment base"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Core algebra",
+      "description": "Basic algebraic structures. Groups encode symmetry; rings and fields provide arithmetic; linear algebra provides the representation medium.",
+      "nodes": [
+        {
+          "id": "GRP",
+          "label": "Group theory",
+          "description": "Sets with associative binary operation, identity, inverses. The basic language of symmetry.",
+          "presupposes": ["ZFC"],
+          "provides": [
+            "Subgroups",
+            "Quotient groups",
+            "Homomorphisms",
+            "Group actions"
+          ],
+          "parametric": [
+            "Commutativity (abelian vs non-abelian)",
+            "Finiteness"
+          ]
+        },
+        {
+          "id": "RING",
+          "label": "Rings & fields",
+          "description": "Groups with additional multiplicative structure. Fields add multiplicative inverses for all nonzero elements.",
+          "presupposes": ["GRP"],
+          "provides": [
+            "Ideals",
+            "Field extensions",
+            "Characteristic"
+          ],
+          "parametric": [
+            "Commutativity",
+            "Characteristic (0 vs p)"
+          ]
+        },
+        {
+          "id": "LA",
+          "label": "Linear algebra",
+          "description": "Vector spaces over fields. Eigenvalues, determinants, tensor products.",
+          "presupposes": ["RING"],
+          "provides": [
+            "Bases",
+            "Dual spaces",
+            "Tensor products",
+            "Inner products"
+          ],
+          "parametric": [
+            "Dimension",
+            "Base field (R vs C)",
+            "Inner product signature"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Topology & analysis",
+      "description": "Continuity, convergence, completeness. The substrate for geometric and analytic reasoning.",
+      "nodes": [
+        {
+          "id": "TOP",
+          "label": "Point-set topology",
+          "description": "Open sets, continuity, compactness, connectedness. The substrate for all geometric reasoning.",
+          "presupposes": ["ZFC"],
+          "provides": [
+            "Continuous maps",
+            "Compactness",
+            "Hausdorff separation",
+            "Quotient spaces"
+          ],
+          "parametric": [
+            "Separation axioms (T0-T4)",
+            "Compactness conditions"
+          ]
+        },
+        {
+          "id": "REAL",
+          "label": "Real analysis",
+          "description": "Completeness of R, limits, measure theory, integration. Dedekind cuts or Cauchy sequences.",
+          "presupposes": ["ZFC", "TOP"],
+          "provides": [
+            "Lebesgue measure",
+            "L^p spaces",
+            "Distribution theory"
+          ],
+          "parametric": [
+            "Completeness (drop → constructive analysis)",
+            "Measure (Lebesgue vs other)"
+          ]
+        },
+        {
+          "id": "CMPLX",
+          "label": "Complex analysis",
+          "description": "Holomorphic functions, Cauchy integral formula, residues. R² with multiplicative structure.",
+          "presupposes": ["REAL"],
+          "provides": [
+            "Analytic continuation",
+            "Residue calculus",
+            "Conformal maps"
+          ],
+          "parametric": [
+            "Riemann surface structure"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Lie theory",
+      "description": "Continuous symmetry groups, their infinitesimal structure, and how they act on vector spaces.",
+      "nodes": [
+        {
+          "id": "LIE",
+          "label": "Lie groups",
+          "description": "Smooth manifolds with compatible group structure. Continuous symmetries.",
+          "presupposes": ["GRP", "TOP", "REAL"],
+          "provides": [
+            "Exponential map",
+            "Adjoint representation",
+            "Compact form classification"
+          ],
+          "parametric": [
+            "Compactness",
+            "Connectedness",
+            "Simple vs semisimple"
+          ]
+        },
+        {
+          "id": "LIEA",
+          "label": "Lie algebras",
+          "description": "Tangent space at identity of a Lie group. Bracket operation. Infinitesimal symmetries.",
+          "presupposes": ["LIE", "LA"],
+          "provides": [
+            "Root systems",
+            "Dynkin diagrams",
+            "Cartan subalgebras",
+            "Killing form"
+          ],
+          "parametric": [
+            "Rank",
+            "Type (A,B,C,D,E,F,G)",
+            "Real form"
+          ]
+        },
+        {
+          "id": "REP",
+          "label": "Representation theory",
+          "description": "Homomorphisms from groups/algebras to GL(V). How symmetries act on vector spaces.",
+          "presupposes": ["LIEA", "LA"],
+          "provides": [
+            "Irreducible representations",
+            "Characters",
+            "Clebsch-Gordan decomposition",
+            "Weight diagrams"
+          ],
+          "parametric": [
+            "Representation dimension",
+            "Highest weight"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Differential geometry",
+      "description": "Manifolds, bundles, connections. The geometric language in which gauge fields live.",
+      "nodes": [
+        {
+          "id": "MAN",
+          "label": "Smooth manifolds",
+          "description": "Locally Euclidean spaces with smooth transition maps. Charts, atlases, tangent bundles.",
+          "presupposes": ["TOP", "REAL", "LA"],
+          "provides": [
+            "Tangent/cotangent bundles",
+            "Differential forms",
+            "de Rham cohomology"
+          ],
+          "parametric": [
+            "Dimension",
+            "Orientability",
+            "Metric signature"
+          ]
+        },
+        {
+          "id": "FB",
+          "label": "Fiber bundles",
+          "description": "Spaces locally product but globally twisted. Principal bundles have structure group G acting on fibers.",
+          "presupposes": ["MAN", "GRP"],
+          "provides": [
+            "Sections",
+            "Bundle maps",
+            "Associated bundles",
+            "Transition functions"
+          ],
+          "parametric": [
+            "Structure group",
+            "Fiber type",
+            "Topology (Chern classes)"
+          ]
+        },
+        {
+          "id": "CONN",
+          "label": "Connections & curvature",
+          "description": "Parallel transport on fiber bundles. Connection 1-form, curvature 2-form. The geometric content of gauge fields.",
+          "presupposes": ["FB", "LIEA"],
+          "provides": [
+            "Covariant derivative",
+            "Holonomy",
+            "Chern-Simons forms",
+            "Characteristic classes"
+          ],
+          "parametric": [
+            "Connection choice (gauge orbit)",
+            "Curvature constraints (flat, self-dual, etc.)"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Functional analysis & quantization",
+      "description": "Infinite-dimensional spaces, operator theory, and the path integral. The bridge from classical to quantum.",
+      "nodes": [
+        {
+          "id": "HILB",
+          "label": "Hilbert spaces",
+          "description": "Complete inner product spaces. The state space of quantum mechanics.",
+          "presupposes": ["LA", "REAL", "TOP"],
+          "provides": [
+            "Orthonormal bases",
+            "Spectral theorem",
+            "Tensor product spaces",
+            "Trace class operators"
+          ],
+          "parametric": [
+            "Separability",
+            "Dimension (finite vs infinite)"
+          ]
+        },
+        {
+          "id": "OA",
+          "label": "Operator algebras",
+          "description": "C*-algebras, von Neumann algebras. Observables as self-adjoint operators.",
+          "presupposes": ["HILB", "RING"],
+          "provides": [
+            "GNS construction",
+            "States as functionals",
+            "Superselection sectors"
+          ],
+          "parametric": [
+            "Type (I, II, III)",
+            "Factor structure"
+          ]
+        },
+        {
+          "id": "PATH",
+          "label": "Path integral",
+          "description": "Sum over histories weighted by exp(iS/hbar). Feynman's formulation. Connects classical action to quantum amplitudes.",
+          "presupposes": ["HILB", "MAN", "REAL"],
+          "provides": [
+            "Propagators",
+            "Partition functions",
+            "Saddle-point / WKB approximation"
+          ],
+          "parametric": [
+            "Measure (not rigorously defined in general)",
+            "Wick rotation"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Classical field theory",
+      "description": "Lagrangian dynamics on spacetime. Gauge theory as geometry of connections.",
+      "nodes": [
+        {
+          "id": "LAG",
+          "label": "Lagrangian / variational",
+          "description": "Action functional, Euler-Lagrange equations, Noether's theorem. Classical dynamics from extremization.",
+          "presupposes": ["MAN", "REAL"],
+          "provides": [
+            "Equations of motion",
+            "Conserved currents",
+            "Symplectic structure"
+          ],
+          "parametric": [
+            "Lagrangian density",
+            "Spacetime signature"
+          ]
+        },
+        {
+          "id": "GAUGE",
+          "label": "Gauge theory (classical)",
+          "description": "Yang-Mills theory. Connection on principal G-bundle as gauge field. Curvature = field strength.",
+          "presupposes": ["CONN", "LAG", "REP"],
+          "provides": [
+            "Gauge transformations",
+            "Field strength tensor",
+            "Minimal coupling",
+            "Covariant derivatives on matter fields"
+          ],
+          "parametric": [
+            "Gauge group G",
+            "Matter representations",
+            "Coupling constants"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Quantum field theory",
+      "description": "Quantized fields, renormalization, anomaly structure. The framework that constrains which classical field theories survive quantization.",
+      "nodes": [
+        {
+          "id": "QFT",
+          "label": "Field quantization",
+          "description": "Promote fields to operator-valued distributions. Fock space, creation/annihilation operators, normal ordering.",
+          "presupposes": ["GAUGE", "HILB", "PATH"],
+          "provides": [
+            "Feynman diagrams",
+            "S-matrix",
+            "Vacuum state",
+            "Particle interpretation"
+          ],
+          "parametric": [
+            "Regularization scheme",
+            "Operator ordering"
+          ]
+        },
+        {
+          "id": "RENORM",
+          "label": "Renormalization",
+          "description": "Absorption of UV divergences. Running couplings, RG flow, asymptotic freedom/safety.",
+          "presupposes": ["QFT", "CMPLX"],
+          "provides": [
+            "Running couplings",
+            "Beta functions",
+            "Anomalous dimensions",
+            "Effective field theory"
+          ],
+          "parametric": [
+            "Renormalization scheme (MS-bar, etc.)",
+            "Scale mu",
+            "Counterterm structure"
+          ]
+        },
+        {
+          "id": "ANOM",
+          "label": "Anomaly cancellation",
+          "description": "Quantum breaking of classical symmetries. Chiral anomaly, gauge anomaly. Consistency constraints on particle content.",
+          "presupposes": ["QFT", "REP", "CONN"],
+          "provides": [
+            "Anomaly-free representations",
+            "Index theorems",
+            "Topological constraints on spectrum"
+          ],
+          "parametric": [
+            "Fermion content must satisfy trace conditions"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Standard Model",
+      "description": "The specific structural configuration that matches observation. Gauge group, matter content, symmetry breaking, flavor mixing.",
+      "nodes": [
+        {
+          "id": "SM_G",
+          "label": "SU(3)×SU(2)×U(1)",
+          "description": "The gauge group. Three simple/abelian factors. Product structure is itself a structural choice — not derived from a single simple group (unless you posit GUT).",
+          "presupposes": ["GAUGE", "ANOM", "RENORM"],
+          "provides": [
+            "Strong, weak, hypercharge interactions",
+            "Gauge boson content (8+3+1)"
+          ],
+          "parametric": [
+            "The group itself (why not SU(5)? SO(10)?)",
+            "Coupling constants g3, g2, g1"
+          ]
+        },
+        {
+          "id": "SM_F",
+          "label": "Three fermion generations",
+          "description": "Each generation: (Q,u,d,L,e) in specific representations. Three copies. Mass hierarchy across generations unexplained structurally.",
+          "presupposes": ["SM_G", "REP", "ANOM"],
+          "provides": [
+            "Quark and lepton fields",
+            "Anomaly cancellation (per generation)"
+          ],
+          "parametric": [
+            "Number of generations (why 3?)",
+            "Representation assignments"
+          ]
+        },
+        {
+          "id": "SM_H",
+          "label": "Higgs mechanism / SSB",
+          "description": "Scalar doublet with Mexican-hat potential. Spontaneous symmetry breaking: SU(2)×U(1)_Y → U(1)_EM. Gives mass to W±, Z, fermions.",
+          "presupposes": ["SM_G", "LAG"],
+          "provides": [
+            "W±, Z masses",
+            "Photon as massless residual",
+            "Fermion mass terms (via Yukawa)",
+            "Higgs boson"
+          ],
+          "parametric": [
+            "Higgs potential parameters (mu², lambda)",
+            "vev v ≈ 246 GeV"
+          ]
+        },
+        {
+          "id": "SM_Y",
+          "label": "Yukawa & mixing",
+          "description": "Yukawa couplings generate fermion masses after SSB. CKM (quarks) and PMNS (leptons) encode flavor mixing and CP violation.",
+          "presupposes": ["SM_F", "SM_H"],
+          "provides": [
+            "Fermion masses",
+            "Flavor-changing currents",
+            "CP violation"
+          ],
+          "parametric": [
+            "Yukawa coupling matrices",
+            "CKM angles + phase",
+            "PMNS angles + phases",
+            "Neutrino mass mechanism"
+          ]
+        }
+      ]
+    }
+  ]
+}
