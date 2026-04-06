@@ -1,0 +1,529 @@
+{
+  "meta": {
+    "project": "Parameterized Ontic Structural Realism",
+    "description": "Structural dependency graph from logical axioms to the Standard Model. V2: all choices are parameters (subtyped), dependencies are classified (logical/conventional/contingent), temporal structure is tracked, iε prescription is explicit.",
+    "version": "2.0.0",
+    "date": "2026-04-05",
+    "primary_document": "sm_dependency_graph_v2.md",
+    "changelog": "V2_NOTE.md"
+  },
+  "parameter_subtypes": {
+    "axiom": "Foundational choice with no prior constraints within the framework",
+    "structural": "Choice of mathematical/physical structure; options constrained by upstream parameters",
+    "kinematic": "Choice about the arena (dimension, signature, topology)",
+    "dynamical": "Choice about equations of motion or interaction rules",
+    "boundary": "Choice about initial/final conditions or propagator prescription; independent of dynamics",
+    "convention": "Choice affecting description but not physics"
+  },
+  "dependency_types": {
+    "logical": "Y cannot be formulated without X",
+    "conventional": "Y is standardly built on X but alternatives exist",
+    "contingent": "Y uses X's output only under conditions X does not guarantee"
+  },
+  "layers": [
+    {
+      "index": 0,
+      "name": "Logic",
+      "nodes": [
+        {
+          "id": "CL",
+          "label": "Classical logic",
+          "parameters": [
+            {"id": "P001", "name": "Law of excluded middle", "type": "axiom", "value": "on", "alternatives": ["off (intuitionistic)"]},
+            {"id": "P002", "name": "Explosion principle", "type": "axiom", "value": "on", "alternatives": ["off (paraconsistent)"]}
+          ],
+          "dependencies": [],
+          "provides": ["Proof by contradiction", "De Morgan duality", "Boolean algebra", "Bivalent truth values"],
+          "temporal_note": null
+        },
+        {
+          "id": "IL",
+          "label": "Intuitionistic logic",
+          "parameters": [
+            {"id": "P001", "name": "Law of excluded middle", "type": "axiom", "value": "off", "alternatives": ["on (classical)"]},
+            {"id": "P002", "name": "Explosion principle", "type": "axiom", "value": "on", "alternatives": ["off (paraconsistent)"]}
+          ],
+          "dependencies": [],
+          "provides": ["Constructive existence proofs", "Curry-Howard correspondence", "BHK interpretation"],
+          "temporal_note": null
+        },
+        {
+          "id": "FOL",
+          "label": "First-order quantification",
+          "parameters": [
+            {"id": "P003", "name": "Underlying logic", "type": "axiom", "value": "classical (CL)", "alternatives": ["intuitionistic (IL)"]},
+            {"id": "P004", "name": "Sort structure", "type": "structural", "value": "single-sorted", "alternatives": ["many-sorted"]},
+            {"id": "P005", "name": "Quantification order", "type": "structural", "value": "first-order", "alternatives": ["second-order", "higher-order"]}
+          ],
+          "dependencies": [
+            {"on": "CL", "type": "conventional", "note": "FOL can be built on IL"}
+          ],
+          "provides": ["Quantified statements", "Model theory", "Completeness theorem", "Compactness theorem"],
+          "temporal_note": null
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Foundations",
+      "nodes": [
+        {
+          "id": "ZFC",
+          "label": "ZFC set theory",
+          "parameters": [
+            {"id": "P006", "name": "Axiom of choice", "type": "axiom", "value": "included", "alternatives": ["excluded (ZF)"]},
+            {"id": "P007", "name": "Continuum hypothesis", "type": "axiom", "value": "independent", "alternatives": ["assumed", "denied"]},
+            {"id": "P008", "name": "Foundation axiom", "type": "axiom", "value": "included", "alternatives": ["excluded (non-well-founded sets)"]}
+          ],
+          "dependencies": [
+            {"on": "CL", "type": "logical", "note": "ZFC is formulated in classical logic"},
+            {"on": "FOL", "type": "logical", "note": "ZFC axioms are first-order sentences"}
+          ],
+          "provides": ["Infinite sets", "Powersets", "Well-ordering", "Cartesian products", "Transfinite induction"],
+          "temporal_note": null
+        },
+        {
+          "id": "TT",
+          "label": "Type theory",
+          "parameters": [
+            {"id": "P009", "name": "Univalence axiom", "type": "axiom", "value": "off", "alternatives": ["on (HoTT)"]},
+            {"id": "P010", "name": "Impredicativity", "type": "structural", "value": "varies", "alternatives": ["predicative", "impredicative"]},
+            {"id": "P011", "name": "Universe levels", "type": "structural", "value": "cumulative", "alternatives": ["non-cumulative"]}
+          ],
+          "dependencies": [
+            {"on": "IL", "type": "conventional", "note": "Martin-Lof TT is intuitionistic; classical type theories exist"}
+          ],
+          "provides": ["Dependent types", "Inductive types", "Universe hierarchy", "Propositions-as-types"],
+          "temporal_note": null
+        },
+        {
+          "id": "CAT",
+          "label": "Category theory",
+          "parameters": [
+            {"id": "P012", "name": "Category size", "type": "structural", "value": "large allowed", "alternatives": ["small only"]},
+            {"id": "P013", "name": "Enrichment base", "type": "structural", "value": "Set", "alternatives": ["Ab", "Top", "Cat"]}
+          ],
+          "dependencies": [
+            {"on": "ZFC", "type": "conventional", "note": "Can be founded on TT, NBG, or ETCS"}
+          ],
+          "provides": ["Functors", "Natural transformations", "Limits/colimits", "Adjunctions", "Yoneda lemma"],
+          "temporal_note": null
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Core algebra",
+      "nodes": [
+        {
+          "id": "GRP",
+          "label": "Group theory",
+          "parameters": [
+            {"id": "P014", "name": "Commutativity", "type": "structural", "value": "unrestricted", "alternatives": ["abelian only"]},
+            {"id": "P015", "name": "Finiteness", "type": "structural", "value": "unrestricted", "alternatives": ["finite only"]}
+          ],
+          "dependencies": [
+            {"on": "ZFC", "type": "conventional", "note": "Needs foundational substrate; ZFC is standard"}
+          ],
+          "provides": ["Subgroups", "Quotient groups", "Homomorphisms", "Group actions", "Sylow theorems"],
+          "temporal_note": null
+        },
+        {
+          "id": "RING",
+          "label": "Rings and fields",
+          "parameters": [
+            {"id": "P016", "name": "Commutativity", "type": "structural", "value": "unrestricted", "alternatives": ["commutative only"]},
+            {"id": "P017", "name": "Characteristic", "type": "structural", "value": "0", "alternatives": ["prime p"]}
+          ],
+          "dependencies": [
+            {"on": "GRP", "type": "logical", "note": "Rings are abelian groups with multiplication"}
+          ],
+          "provides": ["Ideals", "Quotient rings", "Field extensions", "Polynomial rings", "Algebraic closure"],
+          "temporal_note": null
+        },
+        {
+          "id": "LA",
+          "label": "Linear algebra",
+          "parameters": [
+            {"id": "P018", "name": "Base field", "type": "structural", "value": "R and C", "alternatives": ["finite fields", "p-adic"]},
+            {"id": "P019", "name": "Dimension", "type": "structural", "value": "unrestricted", "alternatives": ["finite", "countable"]},
+            {"id": "P020", "name": "Inner product signature", "type": "kinematic", "value": "unrestricted", "alternatives": ["positive-definite", "indefinite", "degenerate"]}
+          ],
+          "dependencies": [
+            {"on": "RING", "type": "logical", "note": "Vector spaces are modules over fields"}
+          ],
+          "provides": ["Bases", "Dual spaces", "Tensor products", "Inner products", "Determinants", "Eigenvalues"],
+          "temporal_note": "Inner product signature will eventually distinguish time from space, but carries no temporal interpretation at this layer."
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Topology and analysis",
+      "nodes": [
+        {
+          "id": "TOP",
+          "label": "Point-set topology",
+          "parameters": [
+            {"id": "P021", "name": "Separation axioms", "type": "structural", "value": "Hausdorff (T2)", "alternatives": ["T0", "T1", "T3", "T4"]},
+            {"id": "P022", "name": "Compactness conditions", "type": "structural", "value": "paracompact", "alternatives": ["compact", "locally compact"]}
+          ],
+          "dependencies": [
+            {"on": "ZFC", "type": "conventional", "note": "Can be developed constructively"}
+          ],
+          "provides": ["Continuous maps", "Compactness", "Connectedness", "Quotient spaces", "Covering spaces"],
+          "temporal_note": null
+        },
+        {
+          "id": "REAL",
+          "label": "Real analysis",
+          "parameters": [
+            {"id": "P023", "name": "Completeness", "type": "axiom", "value": "Dedekind complete", "alternatives": ["constructive reals"]},
+            {"id": "P024", "name": "Measure", "type": "structural", "value": "Lebesgue", "alternatives": ["Borel", "Hausdorff"]}
+          ],
+          "dependencies": [
+            {"on": "ZFC", "type": "logical", "note": "Dedekind construction requires powersets"},
+            {"on": "TOP", "type": "logical", "note": "Metric topology is foundational"}
+          ],
+          "provides": ["Lebesgue measure", "L^p spaces", "Distribution theory", "Fourier analysis"],
+          "temporal_note": "R provides the continuum that will parameterize time. No temporal interpretation at this layer."
+        },
+        {
+          "id": "CMPLX",
+          "label": "Complex analysis",
+          "parameters": [
+            {"id": "P025", "name": "Riemann surface structure", "type": "structural", "value": "varies", "alternatives": ["varies"]}
+          ],
+          "dependencies": [
+            {"on": "REAL", "type": "logical", "note": "C = R + iR"}
+          ],
+          "provides": ["Analytic continuation", "Residue calculus", "Conformal maps", "Cauchy integral formula"],
+          "temporal_note": "C will later be the arena for propagator pole structure (iε) and Wick rotation. No physical interpretation at this layer."
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Lie theory",
+      "nodes": [
+        {
+          "id": "LIE",
+          "label": "Lie groups",
+          "parameters": [
+            {"id": "P026", "name": "Compactness", "type": "structural", "value": "both", "alternatives": ["compact only", "noncompact only"]},
+            {"id": "P027", "name": "Connectedness", "type": "structural", "value": "identity component", "alternatives": ["full group"]},
+            {"id": "P028", "name": "Simple vs semisimple", "type": "structural", "value": "unrestricted", "alternatives": ["simple only"]}
+          ],
+          "dependencies": [
+            {"on": "GRP", "type": "logical", "note": "Lie groups are groups"},
+            {"on": "TOP", "type": "logical", "note": "Lie groups are topological spaces"},
+            {"on": "REAL", "type": "logical", "note": "Smooth structure requires R"}
+          ],
+          "provides": ["Exponential map", "Adjoint representation", "Compact form classification", "Haar measure", "One-parameter subgroups"],
+          "temporal_note": "One-parameter subgroups will generate time translations, but no temporal interpretation is imposed here."
+        },
+        {
+          "id": "LIEA",
+          "label": "Lie algebras",
+          "parameters": [
+            {"id": "P029", "name": "Rank", "type": "structural", "value": "varies", "alternatives": ["any non-negative integer"]},
+            {"id": "P030", "name": "Type", "type": "structural", "value": "A,B,C,D", "alternatives": ["E,F,G (exceptional)"]},
+            {"id": "P031", "name": "Real form", "type": "structural", "value": "compact for internal symmetries", "alternatives": ["split", "other"]}
+          ],
+          "dependencies": [
+            {"on": "LIE", "type": "conventional", "note": "Lie algebras can be defined purely algebraically"},
+            {"on": "LA", "type": "logical", "note": "Lie algebras are vector spaces with bracket"}
+          ],
+          "provides": ["Root systems", "Dynkin diagrams", "Cartan subalgebras", "Killing form", "Casimir operators", "Structure constants"],
+          "temporal_note": null
+        },
+        {
+          "id": "REP",
+          "label": "Representation theory",
+          "parameters": [
+            {"id": "P032", "name": "Representation dimension", "type": "structural", "value": "varies", "alternatives": ["any positive integer"]},
+            {"id": "P033", "name": "Highest weight", "type": "structural", "value": "varies", "alternatives": ["any dominant integral weight"]}
+          ],
+          "dependencies": [
+            {"on": "LIEA", "type": "logical", "note": "Representations are Lie algebra homomorphisms"},
+            {"on": "LA", "type": "logical", "note": "Target space is a vector space"}
+          ],
+          "provides": ["Irreducible representations", "Characters", "Clebsch-Gordan decomposition", "Weight diagrams", "Schur's lemma"],
+          "temporal_note": null
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Differential geometry",
+      "nodes": [
+        {
+          "id": "MAN",
+          "label": "Smooth manifolds",
+          "parameters": [
+            {"id": "P034", "name": "Dimension", "type": "kinematic", "value": "4", "alternatives": ["2", "3", "10", "11", "26"]},
+            {"id": "P035", "name": "Orientability", "type": "kinematic", "value": "orientable", "alternatives": ["non-orientable"]},
+            {"id": "P036", "name": "Metric signature", "type": "kinematic", "value": "(-,+,+,+) Lorentzian", "alternatives": ["(+,+,+,+) Euclidean", "ultrahyperbolic", "degenerate"]}
+          ],
+          "dependencies": [
+            {"on": "TOP", "type": "logical", "note": "Manifolds are topological spaces"},
+            {"on": "REAL", "type": "logical", "note": "Charts map to R^n"},
+            {"on": "LA", "type": "logical", "note": "Tangent spaces are vector spaces"}
+          ],
+          "provides": ["Tangent/cotangent bundles", "Differential forms", "de Rham cohomology", "Riemannian/Lorentzian geometry", "Geodesics", "Curvature tensors"],
+          "temporal_note": "FIRST FORMAL APPEARANCE OF TEMPORAL STRUCTURE. Metric signature P036 distinguishes time from space. No preferred direction — t and -t are equivalent at this layer."
+        },
+        {
+          "id": "FB",
+          "label": "Fiber bundles",
+          "parameters": [
+            {"id": "P037", "name": "Structure group", "type": "structural", "value": "U(1), SU(2), SU(3), Spin(1,3)", "alternatives": ["any Lie group"]},
+            {"id": "P038", "name": "Fiber type", "type": "structural", "value": "principal, vector, associated", "alternatives": ["spinor", "tensor"]},
+            {"id": "P039", "name": "Bundle topology", "type": "structural", "value": "trivial (local physics)", "alternatives": ["nontrivial (monopoles, instantons)"]}
+          ],
+          "dependencies": [
+            {"on": "MAN", "type": "logical", "note": "Bundles need a base manifold"},
+            {"on": "GRP", "type": "logical", "note": "Principal bundles need a structure group"}
+          ],
+          "provides": ["Sections", "Bundle maps", "Associated bundles", "Transition functions"],
+          "temporal_note": null
+        },
+        {
+          "id": "CONN",
+          "label": "Connections and curvature",
+          "parameters": [
+            {"id": "P040", "name": "Gauge orbit representative", "type": "convention", "value": "Lorenz gauge", "alternatives": ["Coulomb", "axial", "light-cone"]},
+            {"id": "P041", "name": "Curvature constraints", "type": "structural", "value": "Yang-Mills", "alternatives": ["flat", "self-dual", "anti-self-dual"]}
+          ],
+          "dependencies": [
+            {"on": "FB", "type": "logical", "note": "Connections live on bundles"},
+            {"on": "LIEA", "type": "logical", "note": "Connections are Lie-algebra-valued forms"}
+          ],
+          "provides": ["Covariant derivative", "Parallel transport", "Holonomy", "Curvature 2-form", "Chern-Simons forms", "Bianchi identity"],
+          "temporal_note": null
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Functional analysis and quantization",
+      "nodes": [
+        {
+          "id": "HILB",
+          "label": "Hilbert spaces",
+          "parameters": [
+            {"id": "P042", "name": "Separability", "type": "structural", "value": "separable", "alternatives": ["non-separable"]},
+            {"id": "P043", "name": "Dimension", "type": "structural", "value": "infinite", "alternatives": ["finite"]}
+          ],
+          "dependencies": [
+            {"on": "LA", "type": "logical", "note": "Hilbert spaces are inner product spaces"},
+            {"on": "REAL", "type": "logical", "note": "Completeness requires analysis"},
+            {"on": "TOP", "type": "logical", "note": "Norm topology"}
+          ],
+          "provides": ["Orthonormal bases", "Spectral theorem", "Tensor product spaces", "Trace class operators", "Stone's theorem"],
+          "temporal_note": "Stone's theorem: one-parameter unitary groups correspond to self-adjoint Hamiltonians. Time evolution is unitary. Time reversal is antiunitary."
+        },
+        {
+          "id": "OA",
+          "label": "Operator algebras",
+          "parameters": [
+            {"id": "P044", "name": "Type classification", "type": "structural", "value": "Type I", "alternatives": ["Type II", "Type III"]},
+            {"id": "P045", "name": "Factor structure", "type": "structural", "value": "factors", "alternatives": ["general von Neumann algebras"]}
+          ],
+          "dependencies": [
+            {"on": "HILB", "type": "logical", "note": "Operators act on Hilbert spaces"},
+            {"on": "RING", "type": "logical", "note": "Operator algebras are rings with involution"}
+          ],
+          "provides": ["GNS construction", "States as functionals", "Superselection sectors", "KMS states", "Tomita-Takesaki modular theory"],
+          "temporal_note": "KMS condition relates time evolution to temperature. Modular flow can coincide with physical time evolution."
+        },
+        {
+          "id": "PATH",
+          "label": "Path integral",
+          "parameters": [
+            {"id": "P046", "name": "Measure", "type": "structural", "value": "Gaussian (free fields)", "alternatives": ["non-perturbative (open problem)"]},
+            {"id": "P047", "name": "Wick rotation", "type": "boundary", "value": "t -> -i*tau", "alternatives": ["no rotation (Lorentzian)"]}
+          ],
+          "dependencies": [
+            {"on": "HILB", "type": "logical", "note": "Computes Hilbert space amplitudes"},
+            {"on": "MAN", "type": "conventional", "note": "Configuration space can be non-manifold"},
+            {"on": "REAL", "type": "logical", "note": "Integration theory required"}
+          ],
+          "provides": ["Propagators", "Partition functions", "Correlation functions", "Saddle-point approximation", "Instanton contributions"],
+          "temporal_note": "SECOND MAJOR TEMPORAL COMMITMENT. Wick rotation transforms temporal structure. Euclidean signature treats all dimensions equally; Osterwalder-Schrader reconstruction recovers Lorentzian time-ordering."
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Classical field theory",
+      "nodes": [
+        {
+          "id": "LAG",
+          "label": "Lagrangian / variational",
+          "parameters": [
+            {"id": "P048", "name": "Lagrangian density", "type": "dynamical", "value": "SM Lagrangian", "alternatives": ["any Lorentz-invariant local functional"]},
+            {"id": "P049", "name": "Spacetime signature", "type": "kinematic", "value": "(-,+,+,+)", "alternatives": ["inherited from MAN P036"]}
+          ],
+          "dependencies": [
+            {"on": "MAN", "type": "logical", "note": "Integration over manifold"},
+            {"on": "REAL", "type": "logical", "note": "Calculus of variations"}
+          ],
+          "provides": ["Euler-Lagrange equations", "Conserved currents (Noether)", "Symplectic structure", "Energy-momentum tensor"],
+          "temporal_note": "Euler-Lagrange equations in Lorentzian signature are hyperbolic PDEs with well-posed initial value problem. Time-symmetric: if phi(t,x) solves them, so does phi(-t,x)."
+        },
+        {
+          "id": "GAUGE",
+          "label": "Gauge theory (classical)",
+          "parameters": [
+            {"id": "P050", "name": "Gauge group G", "type": "structural", "value": "SU(3)xSU(2)xU(1)", "alternatives": ["any compact Lie group", "GUT groups", "trivial"]},
+            {"id": "P051", "name": "Matter representations", "type": "structural", "value": "SM assignments", "alternatives": ["any anomaly-free set"]},
+            {"id": "P052", "name": "Coupling constants", "type": "dynamical", "value": "g3, g2, g1", "alternatives": ["any positive reals"]},
+            {"id": "P053", "name": "Gauge-fixing condition", "type": "convention", "value": "Lorenz gauge", "alternatives": ["Coulomb", "axial", "light-cone"]},
+            {"id": "P079", "name": "Gribov region", "type": "structural", "value": "first Gribov horizon", "alternatives": ["fundamental modular region", "other"], "note": "Non-abelian only. Practice assumes first Gribov horizon. Justification incomplete. Flagged for deep research (OQ3)."}
+          ],
+          "dependencies": [
+            {"on": "CONN", "type": "logical", "note": "Gauge fields are connections"},
+            {"on": "LAG", "type": "logical", "note": "Yang-Mills action is a Lagrangian"},
+            {"on": "REP", "type": "logical", "note": "Matter fields are representation sections"}
+          ],
+          "provides": ["Gauge transformations", "Field strength tensor", "Minimal coupling", "Yang-Mills equations", "Classical solutions (monopoles, instantons)"],
+          "temporal_note": "YANG-MILLS EQUATIONS ARE TIME-SYMMETRIC for any gauge group. Both retarded and advanced solutions are equally valid. Boundary condition choice (retarded vs advanced) is deferred to QFT layer.",
+          "contingent_provisions": ["Field equations admit both retarded and advanced solutions. Which class is physical depends on boundary conditions imposed at QFT (P057) or from cosmology."]
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Quantum field theory",
+      "nodes": [
+        {
+          "id": "QFT",
+          "label": "Field quantization",
+          "parameters": [
+            {"id": "P054", "name": "Regularization scheme", "type": "convention", "value": "dimensional regularization", "alternatives": ["Pauli-Villars", "lattice", "zeta function"]},
+            {"id": "P055", "name": "Operator ordering", "type": "convention", "value": "normal ordering", "alternatives": ["Weyl", "anti-normal"]},
+            {"id": "P056", "name": "Quantization method", "type": "structural", "value": "path integral", "alternatives": ["canonical", "BRST", "stochastic"]},
+            {"id": "P057", "name": "iε sign", "type": "boundary", "value": "+iε", "alternatives": ["-iε"], "note": "Most consequential hidden parameter. Determines causal structure. Universal across gauge sectors (enforced by unique vacuum + unitarity). Physical justification sector-dependent and incomplete. See time-symmetry debt research."},
+            {"id": "P078", "name": "Vacuum state", "type": "boundary", "value": "Poincare-invariant |Omega>", "alternatives": ["Bunch-Davies", "thermal", "squeezed", "other"], "note": "Practice assumes this value universally. No derivation of why. Entangled with P057. Flagged for deep research (OQ2)."}
+          ],
+          "dependencies": [
+            {"on": "GAUGE", "type": "conventional", "note": "QFT can exist without gauge theory"},
+            {"on": "HILB", "type": "logical", "note": "State space"},
+            {"on": "PATH", "type": "conventional", "note": "Canonical quantization is an alternative"}
+          ],
+          "provides": ["Feynman diagrams", "S-matrix", "Vacuum state", "Particle interpretation", "Propagators", "Crossing symmetry", "Spin-statistics theorem", "CPT theorem"],
+          "contingent_provisions": [
+            "Causal propagator structure depends on iε boundary parameter (P057). Not determined by QFT formalism alone.",
+            "Vacuum state uniqueness depends on iε prescription. Without it, vacuum is underdetermined."
+          ],
+          "temporal_note": "THIS IS WHERE TIME ACQUIRES A PREFERRED DIRECTION. iε breaks t -> -t symmetry. Prior layers are time-symmetric. CPT theorem guarantees combined CPT symmetry. Physical justification for iε comes from outside the graph (cosmological boundary conditions)."
+        },
+        {
+          "id": "RENORM",
+          "label": "Renormalization",
+          "parameters": [
+            {"id": "P058", "name": "Renormalization scheme", "type": "convention", "value": "MS-bar", "alternatives": ["on-shell", "MOM"]},
+            {"id": "P059", "name": "Renormalization scale", "type": "convention", "value": "M_Z", "alternatives": ["any energy scale"]},
+            {"id": "P060", "name": "Counterterm structure", "type": "convention", "value": "determined by scheme", "alternatives": []}
+          ],
+          "dependencies": [
+            {"on": "QFT", "type": "logical", "note": "Renormalization addresses QFT divergences"},
+            {"on": "CMPLX", "type": "logical", "note": "Dim reg uses complex analysis"}
+          ],
+          "provides": ["Running couplings", "Beta functions", "Anomalous dimensions", "Effective field theory", "Asymptotic freedom"],
+          "temporal_note": "Beta functions are time-reversal invariant. No new temporal structure."
+        },
+        {
+          "id": "ANOM",
+          "label": "Anomaly cancellation",
+          "parameters": [
+            {"id": "P061", "name": "Fermion content", "type": "structural", "value": "SM assignments", "alternatives": ["any set satisfying trace conditions"], "note": "Constrained, not freely choosable."}
+          ],
+          "dependencies": [
+            {"on": "QFT", "type": "logical", "note": "Anomalies are quantum effects"},
+            {"on": "REP", "type": "logical", "note": "Trace conditions on representations"},
+            {"on": "CONN", "type": "logical", "note": "Index theorem"}
+          ],
+          "provides": ["Anomaly-free representations", "Index theorems", "Topological constraints on spectrum"],
+          "temporal_note": "Anomaly cancellation is time-reversal invariant."
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Standard Model",
+      "nodes": [
+        {
+          "id": "SM_G",
+          "label": "SU(3) x SU(2) x U(1)",
+          "parameters": [
+            {"id": "P062", "name": "Gauge group", "type": "structural", "value": "SU(3)xSU(2)xU(1)_Y", "alternatives": ["SU(5)", "SO(10)", "E6", "E8xE8", "trivial"]},
+            {"id": "P063", "name": "g3 (strong coupling)", "type": "dynamical", "value": "~1.22 at M_Z", "alternatives": ["any positive real"]},
+            {"id": "P064", "name": "g2 (weak coupling)", "type": "dynamical", "value": "~0.65 at M_Z", "alternatives": ["any positive real"]},
+            {"id": "P065", "name": "g1 (hypercharge coupling)", "type": "dynamical", "value": "~0.36 at M_Z", "alternatives": ["any positive real"]}
+          ],
+          "dependencies": [
+            {"on": "GAUGE", "type": "logical", "note": "SM is a gauge theory"},
+            {"on": "ANOM", "type": "logical", "note": "Anomaly freedom required"},
+            {"on": "RENORM", "type": "logical", "note": "Renormalizability required"}
+          ],
+          "provides": ["Strong interaction", "Weak interaction", "Hypercharge interaction", "Gauge boson content (8+3+1)"],
+          "temporal_note": "Gauge group is time-reversal invariant."
+        },
+        {
+          "id": "SM_F",
+          "label": "Three fermion generations",
+          "parameters": [
+            {"id": "P066", "name": "Number of generations", "type": "structural", "value": "3", "alternatives": ["any positive integer"], "note": "No known derivation."},
+            {"id": "P067", "name": "Representation assignments", "type": "structural", "value": "SM assignments", "alternatives": ["any anomaly-free set"]}
+          ],
+          "dependencies": [
+            {"on": "SM_G", "type": "logical", "note": "Reps defined relative to gauge group"},
+            {"on": "REP", "type": "logical", "note": "Representation theory required"},
+            {"on": "ANOM", "type": "logical", "note": "Anomaly cancellation constrains content"}
+          ],
+          "provides": ["Quark fields", "Lepton fields", "Per-generation anomaly cancellation"],
+          "temporal_note": "Fermion content does not introduce temporal asymmetry."
+        },
+        {
+          "id": "SM_H",
+          "label": "Higgs mechanism / SSB",
+          "parameters": [
+            {"id": "P068", "name": "Higgs mu^2", "type": "dynamical", "value": "negative (SSB occurs)", "alternatives": ["positive (no SSB)"]},
+            {"id": "P069", "name": "Higgs lambda", "type": "dynamical", "value": "~0.13", "alternatives": ["any positive real"]},
+            {"id": "P070", "name": "Higgs representation", "type": "structural", "value": "(1,2,1/2) doublet", "alternatives": ["singlet", "triplet", "2HDM", "composite"]},
+            {"id": "P071", "name": "vev", "type": "dynamical", "value": "~246 GeV", "alternatives": ["determined by mu^2 and lambda"]}
+          ],
+          "dependencies": [
+            {"on": "SM_G", "type": "logical", "note": "SSB requires gauge symmetry"},
+            {"on": "LAG", "type": "logical", "note": "Higgs potential is a Lagrangian"}
+          ],
+          "provides": ["W and Z masses", "Massless photon", "Goldstone bosons (eaten)", "Higgs boson", "Fermion mass terms"],
+          "temporal_note": "Higgs potential is time-reversal invariant. SSB does not break T."
+        },
+        {
+          "id": "SM_Y",
+          "label": "Yukawa and mixing",
+          "parameters": [
+            {"id": "P072", "name": "Yukawa matrices", "type": "dynamical", "value": "measured values", "alternatives": ["any complex 3x3"]},
+            {"id": "P073", "name": "CKM angles", "type": "dynamical", "value": "measured values", "alternatives": ["any in [0, pi/2]"]},
+            {"id": "P074", "name": "CKM phase delta", "type": "dynamical", "value": "~1.2 rad", "alternatives": ["0 (no CP violation)", "any in [0, 2pi)"]},
+            {"id": "P075", "name": "PMNS angles", "type": "dynamical", "value": "measured values", "alternatives": ["any"]},
+            {"id": "P076", "name": "PMNS phases", "type": "dynamical", "value": "under investigation", "alternatives": ["any"]},
+            {"id": "P077", "name": "Neutrino mass mechanism", "type": "structural", "value": "unknown", "alternatives": ["Dirac", "Majorana", "seesaw I/II/III", "radiative"]}
+          ],
+          "dependencies": [
+            {"on": "SM_F", "type": "logical", "note": "Yukawa couplings need fermion fields"},
+            {"on": "SM_H", "type": "logical", "note": "vev converts Yukawa to masses"}
+          ],
+          "provides": ["Fermion masses", "Flavor-changing currents", "CP violation", "Neutrino oscillations"],
+          "contingent_provisions": [
+            "Observable CP violation requires interference between CKM phase (P074) and strong phases from iε prescription (P057). Without P057, CP violation is unobservable."
+          ],
+          "temporal_note": "DYNAMICAL T VIOLATION via CKM phase. Only place in the SM Lagrangian that distinguishes past from future. But presupposes iε (P057): logical order is P057 -> causal arrow -> observable CP violation."
+        }
+      ]
+    }
+  ]
+}
