@@ -119,6 +119,19 @@ The Wheeler-Feynman absorber theory establishes that the fundamental electrodyna
 
 **Implication for the cross-theory comparison:** Some apparent structural differences between SM and GR may dissolve when the time-asymmetric convention is made parametric and stripped out. The fork point between the two theories may be shallower than it appears in conventional formulations. The graph must be able to show this — it is one of the project's potentially novel contributions.
 
+**Literature gap: the time-symmetry debt is unaddressed in the non-abelian sectors.** A survey of the literature (April 2026) confirms that nobody has extended the Wheeler-Feynman absorber framework beyond U(1) electrodynamics. Every paper, reinterpretation, and extension (Price, Kastner, Schulman, the transactional interpretation of QM) stays within the electromagnetic sector. No one has formulated an absorber condition for SU(2) or SU(3). No one has even posed the question of what the time-symmetry debt looks like in the weak or strong sectors.
+
+The Yang-Mills equations are time-symmetric for *any* gauge group. The retarded propagator is chosen by hand in every sector. The absorber condition provides a structural justification for this choice in electromagnetism only. The weak and strong sectors carry the identical debt with zero acknowledgment. The common dismissal — that confinement makes advanced gluon solutions "practically irrelevant" and that the massive W/Z bosons are too short-range for cosmological absorber populations — is exactly the kind of convenience-masquerading-as-structure that this project exists to expose. "Practically irrelevant" is not "structurally resolved." The equations admit the solutions. The retarded choice is unexplained.
+
+The time-symmetry node therefore cannot be a single toggle. It must register the debt per gauge sector:
+
+- **U(1) electromagnetic:** Resolved. The Wheeler-Feynman absorber condition provides a structural account.
+- **SU(2) weak:** Unresolved. No absorber mechanism exists. The massive gauge bosons preclude cosmological absorber populations. CP violation in the weak sector introduces *dynamical* T violation, but the relationship between dynamical T violation and the conventional propagator asymmetry is unclear and unstudied.
+- **SU(3) strong:** Unresolved. No absorber mechanism exists. Confinement prevents gluon propagation to macroscopic distances. The strong CP parameter (theta) is observed to be essentially zero, so the strong sector lacks even the dynamical T violation that the weak sector has.
+- **Gravity:** Possibly resolved. Gravity is massless and long-range like EM. Penrose's Weyl curvature hypothesis (vanishing Weyl tensor at the Big Bang) may function as a gravitational absorber condition. Status under investigation.
+
+A deep research task has been dispatched to investigate these questions systematically. Results will appear in `deep-research/time-symmetry-debt/reports/`.
+
 ---
 
 ## 7. Sequencing
