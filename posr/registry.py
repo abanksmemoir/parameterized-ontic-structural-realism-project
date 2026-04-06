@@ -1,15 +1,20 @@
 """
-Registry of known node types and their parametric options.
+Registry of known node types, parameter subtypes, and their options (V2).
 
-This module provides pre-configured node templates and options for
-common structural concepts in physics and mathematics.
+V2 changes:
+  - Parameter subtypes replace the old architectural/runtime distinction
+  - Dependency types are registered
+  - Node templates use V2 Parameter and Dependency types
 """
 
 from typing import Dict, List, Optional
-from .schema import Node, ParametricSlot
+from .schema import Node, Parameter, Dependency, PARAMETER_SUBTYPES, DEPENDENCY_TYPES
 
 
+# ──────────────────────────────────────────────────────────────
 # Standard structural type categories
+# ──────────────────────────────────────────────────────────────
+
 STRUCTURAL_TYPES = {
     "logic": "Deductive system and proof structure",
     "foundation": "Set-theoretic or type-theoretic substrate",
@@ -22,37 +27,91 @@ STRUCTURAL_TYPES = {
 }
 
 
+# ──────────────────────────────────────────────────────────────
+# Parameter subtype descriptions (from V2 ontology)
+# ──────────────────────────────────────────────────────────────
+
+PARAMETER_SUBTYPE_DESCRIPTIONS = {
+    "axiom": "Foundational choice with no prior constraints within the framework",
+    "structural": "Choice of mathematical/physical structure; options constrained by upstream",
+    "kinematic": "Choice about the arena (dimension, signature, topology)",
+    "dynamical": "Choice about equations of motion or interaction rules",
+    "boundary": "Choice about initial/final conditions or propagator prescription; independent of dynamics",
+    "convention": "Choice affecting description but not physics",
+}
+
+
+# ──────────────────────────────────────────────────────────────
+# Dependency type descriptions (from V2 ontology)
+# ──────────────────────────────────────────────────────────────
+
+DEPENDENCY_TYPE_DESCRIPTIONS = {
+    "logical": "Y cannot be formulated without X",
+    "conventional": "Y is standardly built on X but alternatives exist (disguised parameter)",
+    "contingent": "Y uses X's output only under conditions X does not guarantee",
+}
+
+
+# ──────────────────────────────────────────────────────────────
 # Known parametric options for common structural concepts
+# ──────────────────────────────────────────────────────────────
+
 PARAMETRIC_OPTIONS = {
     "logic_choice": {
         "options": ["classical", "intuitionistic", "paraconsistent", "linear"],
         "default": "classical",
+        "parameter_type": "axiom",
     },
     "foundation_choice": {
         "options": ["ZFC", "ZF", "type_theory", "category_theory"],
         "default": "ZFC",
+        "parameter_type": "axiom",
     },
     "gauge_group": {
         "options": ["SU(3)xSU(2)xU(1)", "SU(5)", "SO(10)", "E(6)", "E(8)"],
         "default": "SU(3)xSU(2)xU(1)",
+        "parameter_type": "structural",
     },
     "num_generations": {
         "options": ["1", "2", "3", "4"],
         "default": "3",
+        "parameter_type": "structural",
     },
-    "time_asymmetry": {
-        "options": ["retarded", "advanced", "wheeler_feynman", "symmetric"],
-        "default": "retarded",
+    "iepsilon_sign": {
+        "options": ["+iε", "-iε"],
+        "default": "+iε",
+        "parameter_type": "boundary",
+    },
+    "vacuum_state": {
+        "options": ["Poincare-invariant", "Bunch-Davies", "thermal", "squeezed"],
+        "default": "Poincare-invariant",
+        "parameter_type": "boundary",
     },
     "metric_signature": {
-        "options": ["(+,-,-,-)", "(-,+,+,+)", "euclidean"],
-        "default": "(+,-,-,-)",
+        "options": ["(-,+,+,+)", "(+,-,-,-)", "(+,+,+,+)"],
+        "default": "(-,+,+,+)",
+        "parameter_type": "kinematic",
+    },
+    "wick_rotation": {
+        "options": ["t -> -i*tau", "no rotation (Lorentzian)"],
+        "default": "t -> -i*tau",
+        "parameter_type": "boundary",
+    },
+    "renormalization_scheme": {
+        "options": ["MS-bar", "on-shell", "MOM"],
+        "default": "MS-bar",
+        "parameter_type": "convention",
+    },
+    "gauge_fixing": {
+        "options": ["Lorenz", "Coulomb", "axial", "light-cone"],
+        "default": "Lorenz",
+        "parameter_type": "convention",
     },
 }
 
 
 def node_template(node_id: str) -> Optional[Node]:
-    """Retrieve a pre-configured node template by ID.
+    """Retrieve a pre-configured node template by ID (V2 types).
 
     Returns None if the template is not registered.
     """
@@ -62,20 +121,41 @@ def node_template(node_id: str) -> Optional[Node]:
             structural_type="logic",
             label="Classical logic",
             description="Law of excluded middle, double negation elimination, material conditional.",
-            presupposes=[],
-            provides=["proof_by_contradiction", "de_morgan_duality", "boolean_algebra"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="LEM",
-                    description="Law of excluded middle",
-                    slot_type="architectural",
-                    default="true",
+            dependencies=[],
+            provides=["Proof by contradiction", "De Morgan duality", "Boolean algebra"],
+            parameters=[
+                Parameter(
+                    id="P001", name="Law of excluded middle",
+                    parameter_type="axiom",
+                    value="on", alternatives=["off (intuitionistic)"],
                 ),
-                ParametricSlot(
-                    name="explosion",
-                    description="Principle of explosion (ex falso quodlibet)",
-                    slot_type="architectural",
-                    default="true",
+                Parameter(
+                    id="P002", name="Explosion principle",
+                    parameter_type="axiom",
+                    value="on", alternatives=["off (paraconsistent)"],
+                ),
+            ],
+        ),
+        "FOL": Node(
+            id="FOL",
+            structural_type="logic",
+            label="First-order quantification",
+            description="Universal and existential quantification over individuals.",
+            dependencies=[
+                Dependency(on="CL", dependency_type="conventional",
+                          note="FOL can be built on IL"),
+            ],
+            provides=["Quantified statements", "Model theory"],
+            parameters=[
+                Parameter(
+                    id="P003", name="Underlying logic",
+                    parameter_type="axiom",
+                    value="classical (CL)", alternatives=["intuitionistic (IL)"],
+                ),
+                Parameter(
+                    id="P004", name="Sort structure",
+                    parameter_type="structural",
+                    value="single-sorted", alternatives=["many-sorted"],
                 ),
             ],
         ),
@@ -84,133 +164,28 @@ def node_template(node_id: str) -> Optional[Node]:
             structural_type="foundation",
             label="ZFC set theory",
             description="Zermelo-Fraenkel with Choice.",
-            presupposes=["CL", "FOL"],
-            provides=["infinite_sets", "powersets", "well_ordering", "cartesian_products"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="axiom_of_choice",
-                    description="Axiom of Choice",
-                    slot_type="architectural",
-                    known_options=["true", "false"],
-                    default="true",
-                ),
-                ParametricSlot(
-                    name="foundation",
-                    description="Axiom of Foundation",
-                    slot_type="architectural",
-                    known_options=["true", "false"],
-                    default="true",
-                ),
+            dependencies=[
+                Dependency(on="CL", dependency_type="logical",
+                          note="ZFC is formulated in classical logic"),
+                Dependency(on="FOL", dependency_type="logical",
+                          note="ZFC axioms are first-order sentences"),
             ],
-        ),
-        "FOL": Node(
-            id="FOL",
-            structural_type="logic",
-            label="First-order logic",
-            description="Universal and existential quantification over individuals.",
-            presupposes=["CL"],
-            provides=["quantified_statements", "model_theory"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="sorts",
-                    description="Single or many-sorted",
-                    slot_type="architectural",
-                    known_options=["single", "many"],
-                    default="single",
+            provides=["Infinite sets", "Powersets", "Well-ordering", "Cartesian products"],
+            parameters=[
+                Parameter(
+                    id="P006", name="Axiom of choice",
+                    parameter_type="axiom",
+                    value="included", alternatives=["excluded (ZF)"],
                 ),
-            ],
-        ),
-        "GRP": Node(
-            id="GRP",
-            structural_type="algebraic_structure",
-            label="Group theory",
-            description="Sets with associative binary operation, identity, inverses.",
-            presupposes=["ZFC"],
-            provides=["subgroups", "quotient_groups", "homomorphisms", "group_actions"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="commutativity",
-                    description="Abelian vs non-abelian",
-                    slot_type="architectural",
-                    known_options=["abelian", "non_abelian"],
-                    default="non_abelian",
+                Parameter(
+                    id="P007", name="Continuum hypothesis",
+                    parameter_type="axiom",
+                    value="independent", alternatives=["assumed", "denied"],
                 ),
-            ],
-        ),
-        "LA": Node(
-            id="LA",
-            structural_type="algebraic_structure",
-            label="Linear algebra",
-            description="Vector spaces over fields.",
-            presupposes=["RING"],
-            provides=["bases", "dual_spaces", "tensor_products", "inner_products"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="base_field",
-                    description="Base field (R, C, or other)",
-                    slot_type="runtime",
-                    known_options=["R", "C"],
-                    default="C",
-                ),
-                ParametricSlot(
-                    name="inner_product_signature",
-                    description="Signature of inner product if defined",
-                    slot_type="runtime",
-                    default="euclidean",
-                ),
-            ],
-        ),
-        "MAN": Node(
-            id="MAN",
-            structural_type="geometric_structure",
-            label="Smooth manifolds",
-            description="Locally Euclidean spaces with smooth transition maps.",
-            presupposes=["TOP", "REAL", "LA"],
-            provides=["tangent_bundles", "differential_forms", "de_rham_cohomology"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="dimension",
-                    description="Manifold dimension",
-                    slot_type="runtime",
-                    default="4",
-                ),
-                ParametricSlot(
-                    name="orientability",
-                    description="Orientable or non-orientable",
-                    slot_type="architectural",
-                    known_options=["orientable", "non_orientable"],
-                    default="orientable",
-                ),
-                ParametricSlot(
-                    name="metric_signature",
-                    description="Metric signature if metric present",
-                    slot_type="runtime",
-                    known_options=["(+,-,-,-)", "(-,+,+,+)", "euclidean"],
-                    default="(+,-,-,-)",
-                ),
-            ],
-        ),
-        "CONN": Node(
-            id="CONN",
-            structural_type="geometric_structure",
-            label="Connections & curvature",
-            description="Parallel transport on fiber bundles.",
-            presupposes=["FB", "LIEA"],
-            provides=["covariant_derivative", "holonomy", "characteristic_classes"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="bundle_type",
-                    description="Which bundle the connection lives on (principal, tangent, internal gauge)",
-                    slot_type="architectural",
-                    known_options=["principal", "tangent", "internal_gauge"],
-                    default="principal",
-                ),
-                ParametricSlot(
-                    name="torsion",
-                    description="Presence of torsion",
-                    slot_type="architectural",
-                    known_options=["present", "absent"],
-                    default="absent",
+                Parameter(
+                    id="P008", name="Foundation axiom",
+                    parameter_type="axiom",
+                    value="included", alternatives=["excluded"],
                 ),
             ],
         ),
@@ -219,75 +194,35 @@ def node_template(node_id: str) -> Optional[Node]:
             structural_type="quantization",
             label="Field quantization",
             description="Promote fields to operator-valued distributions.",
-            presupposes=["GAUGE", "HILB", "PATH"],
-            provides=["feynman_diagrams", "s_matrix", "vacuum_state", "particle_interpretation"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="time_asymmetry",
-                    description="Time symmetry choice (retarded, advanced, or symmetric)",
-                    slot_type="architectural",
-                    known_options=["retarded", "advanced", "wheeler_feynman", "symmetric"],
-                    default="retarded",
+            dependencies=[
+                Dependency(on="GAUGE", dependency_type="conventional",
+                          note="QFT can exist without gauge theory"),
+                Dependency(on="HILB", dependency_type="logical",
+                          note="State space"),
+                Dependency(on="PATH", dependency_type="conventional",
+                          note="Canonical quantization is an alternative"),
+            ],
+            provides=["Feynman diagrams", "S-matrix", "Vacuum state", "Propagators",
+                      "CPT theorem", "Spin-statistics theorem"],
+            parameters=[
+                Parameter(
+                    id="P057", name="iε sign",
+                    parameter_type="boundary",
+                    value="+iε", alternatives=["-iε"],
+                    note="Most consequential hidden parameter. Determines causal structure.",
                 ),
-                ParametricSlot(
-                    name="regularization",
-                    description="UV regularization scheme",
-                    slot_type="runtime",
-                    known_options=["dimensional", "cutoff", "zeta"],
-                    default="dimensional",
+                Parameter(
+                    id="P078", name="Vacuum state",
+                    parameter_type="boundary",
+                    value="Poincare-invariant |Omega>",
+                    alternatives=["Bunch-Davies", "thermal", "squeezed"],
+                    note="Practice assumes this value. No derivation of why.",
                 ),
             ],
-        ),
-        "SM_G": Node(
-            id="SM_G",
-            structural_type="physical_theory",
-            label="Standard Model gauge group",
-            description="The gauge group SU(3)×SU(2)×U(1).",
-            presupposes=["GAUGE", "ANOM", "RENORM"],
-            provides=["strong_interaction", "weak_interaction", "electromagnetic_interaction"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="gauge_group",
-                    description="Specific gauge group structure",
-                    slot_type="architectural",
-                    known_options=["SU(3)xSU(2)xU(1)", "SU(5)", "SO(10)", "E(6)"],
-                    default="SU(3)xSU(2)xU(1)",
-                ),
-                ParametricSlot(
-                    name="g3",
-                    description="Strong coupling constant",
-                    slot_type="runtime",
-                    default="1.221",
-                ),
-                ParametricSlot(
-                    name="g2",
-                    description="Weak coupling constant",
-                    slot_type="runtime",
-                    default="0.652",
-                ),
-                ParametricSlot(
-                    name="g1",
-                    description="Hypercharge coupling constant",
-                    slot_type="runtime",
-                    default="0.357",
-                ),
-            ],
-        ),
-        "SM_F": Node(
-            id="SM_F",
-            structural_type="physical_theory",
-            label="Fermion content",
-            description="Quark and lepton fields in specific representations.",
-            presupposes=["SM_G", "REP", "ANOM"],
-            provides=["quark_fields", "lepton_fields", "anomaly_constraints"],
-            parametric_slots=[
-                ParametricSlot(
-                    name="num_generations",
-                    description="Number of fermion generations",
-                    slot_type="architectural",
-                    known_options=["1", "2", "3", "4"],
-                    default="3",
-                ),
+            temporal_note="THIS IS WHERE TIME ACQUIRES A PREFERRED DIRECTION via iε.",
+            contingent_provisions=[
+                "Causal propagator structure depends on iε boundary parameter (P057).",
+                "Vacuum state uniqueness depends on iε prescription.",
             ],
         ),
     }
@@ -296,8 +231,5 @@ def node_template(node_id: str) -> Optional[Node]:
 
 
 def get_parametric_options(parameter_name: str) -> Dict[str, any]:
-    """Get known options for a parametric slot by name.
-
-    Returns a dict with 'options' (list) and 'default' keys.
-    """
+    """Get known options for a parametric slot by name."""
     return PARAMETRIC_OPTIONS.get(parameter_name, {})

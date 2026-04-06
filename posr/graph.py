@@ -1,8 +1,8 @@
 """
-Graph operations: build, traverse, validate, and propagate changes.
+Graph operations: build, traverse, validate, and propagate changes (V2).
 
-This module provides higher-level operations on theory graphs beyond
-the basic topological sort and ancestor/descendant queries.
+Handles both V2 JSON format (typed parameters, typed dependencies) and
+legacy V1 format (string presupposes, parametric descriptions).
 
 Design intent (plug-and-play):
     The core operation is: take a resolved TheoryFile, change one parametric
@@ -12,29 +12,24 @@ Design intent (plug-and-play):
 
         load theory → toggle parameter → propagate → save as new file
 
-    Currently propagate_change() only identifies affected nodes — it does not
-    recompute their content. When external tools are wired in (GAP for group
-    theory, FeynRules for Lagrangians, etc.), propagation will trigger actual
-    recomputation at each affected node via its tool binding. For now, it
-    serves as the structural skeleton for that future capability.
-
-    The key invariant: changing a parametric choice at node N should never
-    silently leave a downstream node unchanged if that node's structural
-    content depends on the changed provision. The system should either
-    recompute or flag as stale. This is the "functorial composition"
-    requirement from the project briefing.
+    propagate_change() now tracks dependency type: a change at a node
+    connected via a contingent dependency may or may not propagate depending
+    on whether the contingent condition holds.
 """
 
 from typing import Dict, List, Set, Optional, Any, Callable
-from .schema import TheoryGraph, Node, ParametricSlot, TheoryFile, ForkPoint
+from .schema import (
+    TheoryGraph, TheoryGraphMeta, Node, Parameter, Dependency,
+    TheoryFile, ForkPoint, PARAMETER_SUBTYPES, DEPENDENCY_TYPES,
+)
 from datetime import datetime
 
 
 def build_from_json(json_path_or_data) -> TheoryGraph:
-    """Build a TheoryGraph from the old JSON format (sm_dependency_graph.json).
+    """Build a TheoryGraph from JSON (handles both V1 and V2 formats).
 
-    The old format has nodes organized by layers. This function flattens
-    and converts to the new schema, inferring structural_type from context.
+    V2 format: nodes have 'parameters' (typed) and 'dependencies' (typed).
+    V1 format: nodes have 'parametric' (strings) and 'presupposes' (string list).
 
     Args:
         json_path_or_data: Either a file path string or a dict of JSON data.
@@ -43,9 +38,7 @@ def build_from_json(json_path_or_data) -> TheoryGraph:
         A TheoryGraph object.
     """
     import json as json_module
-    from .schema import TheoryGraphMeta
 
-    # Handle both file path and dict input
     if isinstance(json_path_or_data, str):
         with open(json_path_or_data, 'r') as f:
             json_data = json_module.load(f)
@@ -53,10 +46,12 @@ def build_from_json(json_path_or_data) -> TheoryGraph:
         json_data = json_path_or_data
 
     meta_data = json_data.get("meta", {})
+    version = meta_data.get("version", "1.0.0")
+
     meta = TheoryGraphMeta(
-        name=meta_data.get("project", "Unknown"),
+        name=meta_data.get("project", meta_data.get("name", "Unknown")),
         description=meta_data.get("description", ""),
-        version=meta_data.get("version", "0.1.0"),
+        version=version,
         date=meta_data.get("date", datetime.utcnow().isoformat()),
     )
 
@@ -70,7 +65,7 @@ def build_from_json(json_path_or_data) -> TheoryGraph:
         3: "analytic_structure",
         4: "algebraic_structure",  # Lie theory
         5: "geometric_structure",
-        6: "analytic_structure",  # Functional analysis
+        6: "analytic_structure",   # Functional analysis
         7: "dynamical_principle",
         8: "quantization",
         9: "physical_theory",
@@ -81,38 +76,68 @@ def build_from_json(json_path_or_data) -> TheoryGraph:
         structural_type = layer_type_map.get(layer_idx, "unknown")
 
         for node_data in layer.get("nodes", []):
-            # Convert parametric descriptions to ParametricSlot objects
-            parametric_slots = []
-            for param_desc in node_data.get("parametric", []):
-                # Parse the description to extract name and default if present
-                # Example: "LEM can be dropped → intuitionistic"
-                parts = param_desc.split("→")
-                name = parts[0].strip().split()[-1].lower() if parts else "param"
-                slot_type = "architectural" if "drop" in param_desc or "change" in param_desc.lower() else "runtime"
+            node_id = node_data["id"]
 
-                parametric_slots.append(
-                    ParametricSlot(
-                        name=name,
-                        description=param_desc,
-                        slot_type=slot_type,
-                        known_options=None,
-                        default=None,
+            # Parse dependencies (V2: typed objects; V1: string list)
+            dependencies = []
+            if "dependencies" in node_data:
+                for dep_data in node_data["dependencies"]:
+                    if isinstance(dep_data, dict):
+                        dependencies.append(Dependency.from_dict(dep_data))
+                    elif isinstance(dep_data, str):
+                        dependencies.append(
+                            Dependency(on=dep_data, dependency_type="logical")
+                        )
+            elif "presupposes" in node_data:
+                for dep_id in node_data["presupposes"]:
+                    dependencies.append(
+                        Dependency(on=dep_id, dependency_type="logical")
                     )
-                )
+
+            # Parse parameters (V2: typed objects; V1: description strings)
+            parameters = []
+            if "parameters" in node_data:
+                for param_data in node_data["parameters"]:
+                    if isinstance(param_data, dict) and "type" in param_data:
+                        parameters.append(Parameter.from_dict(param_data))
+                    elif isinstance(param_data, str):
+                        parameters.append(_parse_legacy_parametric(
+                            param_data, len(parameters), node_id
+                        ))
+            elif "parametric" in node_data:
+                for i, desc in enumerate(node_data["parametric"]):
+                    parameters.append(_parse_legacy_parametric(desc, i, node_id))
 
             node = Node(
-                id=node_data["id"],
+                id=node_id,
                 structural_type=structural_type,
                 label=node_data["label"],
-                description=node_data["description"],
-                presupposes=node_data.get("presupposes", []),
+                description=node_data.get("description", ""),
+                dependencies=dependencies,
                 provides=node_data.get("provides", []),
-                parametric_slots=parametric_slots,
+                parameters=parameters,
+                temporal_note=node_data.get("temporal_note"),
+                contingent_provisions=node_data.get("contingent_provisions", []),
             )
             graph.add_node(node)
 
     graph.validate()
     return graph
+
+
+def _parse_legacy_parametric(desc: str, index: int, node_id: str) -> Parameter:
+    """Parse a V1 parametric description string into a Parameter."""
+    parts = desc.split("→")
+    name = parts[0].strip().split()[-1].lower() if parts else f"param_{index}"
+
+    return Parameter(
+        id=f"P_{node_id}_{index}",
+        name=name,
+        parameter_type="structural",  # best guess for legacy
+        value=None,
+        alternatives=None,
+        note=f"Legacy: {desc}",
+    )
 
 
 def resolve_parametric_choices(
@@ -123,14 +148,12 @@ def resolve_parametric_choices(
 
     Args:
         graph: The base TheoryGraph.
-        choices: Dict of {node_id: {slot_name: chosen_value, ...}}
+        choices: Dict of {node_id: {param_name_or_id: chosen_value, ...}}
 
     Returns:
         A TheoryFile with all resolved values and provenance.
     """
-    # Create a deep copy of the graph
     import copy
-
     new_graph = copy.deepcopy(graph)
 
     fork_provenance = []
@@ -144,13 +167,18 @@ def resolve_parametric_choices(
 
         # Record fork point provenance
         alternatives = {}
-        for slot_name, chosen_value in choice_dict.items():
-            # Find the slot definition
-            slot = next((s for s in node.parametric_slots if s.name == slot_name), None)
-            if slot and slot.known_options:
-                alternatives[slot_name] = [o for o in slot.known_options if o != chosen_value]
+        for param_key, chosen_value in choice_dict.items():
+            param = next(
+                (p for p in node.parameters
+                 if p.id == param_key or p.name == param_key),
+                None
+            )
+            if param and param.alternatives:
+                alternatives[param_key] = [
+                    a for a in param.alternatives if a != chosen_value
+                ]
             else:
-                alternatives[slot_name] = []
+                alternatives[param_key] = []
 
         if alternatives:
             fork_provenance.append(
@@ -172,18 +200,16 @@ def propagate_change(
     node_id: str,
     changed_provisions: List[str],
     callback: Optional[Callable[[str, List[str]], None]] = None,
+    skip_contingent: bool = False,
 ) -> Set[str]:
     """Propagate a change at a node upward through the graph.
-
-    When a node's structural content changes (e.g., from classical logic to
-    intuitionistic), this function identifies all dependent nodes that might
-    be affected.
 
     Args:
         graph: The TheoryGraph.
         node_id: The node where the change occurred.
         changed_provisions: List of provisions that changed.
-        callback: Optional callback(affected_node_id, changed_provisions) for each affected node.
+        callback: Optional callback(affected_node_id, changed_provisions).
+        skip_contingent: If True, don't propagate through contingent dependencies.
 
     Returns:
         Set of all affected node IDs (including node_id itself).
@@ -193,13 +219,18 @@ def propagate_change(
 
     while queue:
         current = queue.pop(0)
-        # Find all nodes that depend on this one
         for other_id, other_node in graph.nodes.items():
-            if current in other_node.presupposes and other_id not in affected:
-                affected.add(other_id)
-                queue.append(other_id)
-                if callback:
-                    callback(other_id, changed_provisions)
+            if other_id in affected:
+                continue
+            for dep in other_node.dependencies:
+                if dep.on == current:
+                    if skip_contingent and dep.dependency_type == "contingent":
+                        continue
+                    affected.add(other_id)
+                    queue.append(other_id)
+                    if callback:
+                        callback(other_id, changed_provisions)
+                    break
 
     return affected
 
@@ -218,13 +249,28 @@ def validate_consistency(graph: TheoryGraph) -> List[str]:
     except ValueError as e:
         errors.append(str(e))
 
-    # Check that all presupposes are satisfied
+    # Check that all dependencies are satisfied
     all_ids = set(graph.nodes.keys())
     for node_id, node in graph.nodes.items():
-        for presupposed in node.presupposes:
-            if presupposed not in all_ids:
+        for dep in node.dependencies:
+            if dep.on not in all_ids:
                 errors.append(
-                    f"Node {node_id} presupposes {presupposed}, which is not in the graph."
+                    f"Node {node_id} depends on {dep.on}, which is not in the graph."
+                )
+
+    # V2 checks: validate parameter types
+    for node_id, node in graph.nodes.items():
+        for param in node.parameters:
+            if param.parameter_type not in PARAMETER_SUBTYPES:
+                errors.append(
+                    f"Node {node_id}, parameter {param.id}: "
+                    f"invalid type '{param.parameter_type}'"
+                )
+        for dep in node.dependencies:
+            if dep.dependency_type not in DEPENDENCY_TYPES:
+                errors.append(
+                    f"Node {node_id}, dependency on {dep.on}: "
+                    f"invalid type '{dep.dependency_type}'"
                 )
 
     return errors
@@ -234,20 +280,7 @@ def compare_structures(
     graph1: TheoryGraph,
     graph2: TheoryGraph,
 ) -> Dict[str, Any]:
-    """Compare two theory graphs and identify shared structure and fork points.
-
-    Args:
-        graph1: First theory graph.
-        graph2: Second theory graph.
-
-    Returns:
-        A dict with keys:
-          - 'shared_nodes': Set of node IDs in both graphs
-          - 'shared_graph': TheoryGraph of shared nodes
-          - 'graph1_only': Set of node IDs only in graph1
-          - 'graph2_only': Set of node IDs only in graph2
-          - 'fork_points': List of node IDs where parametric choices differ
-    """
+    """Compare two theory graphs and identify shared structure and fork points."""
     all_ids_1 = set(graph1.nodes.keys())
     all_ids_2 = set(graph2.nodes.keys())
 
@@ -255,7 +288,6 @@ def compare_structures(
     graph1_only = all_ids_1 - all_ids_2
     graph2_only = all_ids_2 - all_ids_1
 
-    # Find fork points: nodes in both graphs with different resolved values
     fork_points = []
     for node_id in shared_ids:
         node1 = graph1.nodes[node_id]
@@ -263,7 +295,6 @@ def compare_structures(
         if node1.resolved_values != node2.resolved_values:
             fork_points.append(node_id)
 
-    # Extract shared subgraph
     shared_graph = graph1.shared_subgraph(graph2)
 
     return {
@@ -276,26 +307,17 @@ def compare_structures(
 
 
 def find_deepest_chain(graph: TheoryGraph) -> List[str]:
-    """Find the longest path through the graph (most constrained chain).
-
-    This is the deepest dependency chain — every link is a potential
-    parametric swap point.
-
-    Returns:
-        List of node IDs from a root (no presupposes) to a deepest leaf.
-    """
+    """Find the longest path through the graph (most constrained chain)."""
     topo_order = graph.topological_sort()
-    root_nodes = [nid for nid in topo_order if not graph.nodes[nid].presupposes]
+    root_nodes = [nid for nid in topo_order if not graph.nodes[nid].dependencies]
 
     def dfs(node_id: str, visited: Set[str]) -> List[str]:
         visited.add(node_id)
-        node = graph.nodes[node_id]
 
-        # Find dependents
         dependents = [
             other_id
             for other_id in graph.nodes
-            if node_id in graph.nodes[other_id].presupposes
+            if node_id in graph.nodes[other_id].dependency_ids()
         ]
 
         if not dependents:
