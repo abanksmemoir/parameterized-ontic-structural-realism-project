@@ -1,0 +1,110 @@
+NOTEBOOKLM SOURCE INDEX — PARAMETERIZED ONTIC STRUCTURAL REALISM PROJECT
+Generated 2026-04-07
+
+This folder is a flat export of the repository documentation, formatted for
+upload to NotebookLM (which has no folder structure). Hierarchy is encoded in
+the filenames:
+
+  <layer-prefix>__<path-component>__<path-component>__<filename>.txt
+
+Layer prefixes (for reading order):
+  00-root                  Orientation documents at the top of the repo
+  01-v1                    Version 1 of the dependency graph
+  02-research              Deep research context and briefings
+  03-reports               Five agent reports on the time-symmetry debt
+  04-v2                    Version 2 of the dependency graph (current version)
+  05-creating-agent-notes  Institutional knowledge from the V2 creating agent
+
+=== RECOMMENDED READING ORDER ===
+
+For a first-time reader who wants to understand the project:
+
+  1. 00-root__README.txt
+  2. 00-root__state_of_project_4_6_26.txt
+  3. 05-creating-agent-notes__origin_story.txt  (why the project exists)
+  4. 00-root__PROJECT_BRIEFING.txt
+  5. 00-root__OPERATING_MANUAL.txt
+  6. 04-v2__V2_NOTE.txt  (the most important single document)
+  7. 04-v2__sm_dependency_graph_v2.txt  (the graph itself)
+  8. 04-v2__PARAMETER_INVENTORY.txt  (flat inventory of all 79 parameters)
+
+For the time-symmetry research specifically:
+
+  1. 02-research__time-symmetry-debt__AGENT_BRIEFING.txt
+  2. 02-research__time-symmetry-debt__RESEARCH_BRIEFS.txt
+  3. 03-reports__synthesis.txt  (cross-cutting summary)
+  4. 03-reports__agent-1-nonabelian-absorber.txt
+  5. 03-reports__agent-2-cosmological-propagator.txt
+  6. 03-reports__agent-3-cp-violation.txt
+  7. 03-reports__agent-4-inheritance-through-coupling.txt
+  8. 03-reports__agent-5-gravitational-absorber.txt
+
+For institutional knowledge and future direction:
+
+  1. 05-creating-agent-notes__README.txt
+  2. 05-creating-agent-notes__methodological_lessons.txt
+  3. 05-creating-agent-notes__where_the_leverage_is.txt
+  4. 05-creating-agent-notes__what_compaction_will_lose.txt
+
+=== FILE INVENTORY ===
+
+00-root__README.txt                                    Project overview
+00-root__state_of_project_4_6_26.txt                   Current state and forward direction (2026-04-07)
+00-root__PROJECT_BRIEFING.txt                          Full project briefing
+00-root__OPERATING_MANUAL.txt                          Design philosophy
+00-root__SUPPLEMENTARY_BRIEFING.txt                    Supplementary context
+00-root__IMPLEMENTATION_NOTES.txt                      Implementation notes
+
+01-v1__sm_dependency_graph.txt                         V1 graph spec (30 nodes, 10 layers)
+
+02-research__README.txt                                Deep-research folder overview
+02-research__time-symmetry-debt__AGENT_BRIEFING.txt    Onboarding for future Claude sessions
+02-research__time-symmetry-debt__RESEARCH_BRIEFS.txt   Five research task definitions
+02-research__time-symmetry-debt__ORCHESTRATION_PROMPT.txt  Agent orchestration prompt
+
+03-reports__agent-1-nonabelian-absorber.txt            Non-abelian absorber condition (none exists; four obstacles)
+03-reports__agent-2-cosmological-propagator.txt        Cosmological propagator selection (Yurova-Yurov-Yurov 2023)
+03-reports__agent-3-cp-violation.txt                   CP violation presupposes iε (Donoghue-Menezes)
+03-reports__agent-4-inheritance-through-coupling.txt   Five transmission mechanisms; shared vacuum is central
+03-reports__agent-5-gravitational-absorber.txt         Gravitational absorber fails; Penrose WCH alternative
+03-reports__synthesis.txt                              Cross-cutting synthesis; three-tier architecture
+
+04-v2__V2_NOTE.txt                                     V2 rationale, terminology, decisions, open questions
+04-v2__sm_dependency_graph_v2.txt                      V2 graph spec (79 parameters, 57 dependencies)
+04-v2__PARAMETER_INVENTORY.txt                         Flat inventory with underspecified-parameters table
+
+05-creating-agent-notes__README.txt                    Index of the creating-agent notes
+05-creating-agent-notes__origin_story.txt              Feynman/Wheeler/NMK/Bajlo origin passage (only copy)
+05-creating-agent-notes__methodological_lessons.txt    Six lessons from Mike's corrections
+05-creating-agent-notes__where_the_leverage_is.txt     Prioritized research directions
+05-creating-agent-notes__what_compaction_will_lose.txt Perishable knowledge map
+
+=== KEY CONCEPTS ===
+
+- Parameterized Ontic Structural Realism (POSR): "Real" is an honorific for
+  structural regions of the lattice of well-formed hypotheticals that do
+  nontrivial empirical work. Platonism as navigational medium.
+
+- Everything is a parameter: Every choice in the graph — from logic (Layer 0)
+  to the CKM phase (Layer 9) — is a parameter subtyped as axiom, structural,
+  kinematic, dynamical, boundary, or convention.
+
+- Dependency types: logical (cannot be formulated otherwise), conventional
+  (standard but alternatives exist), contingent (depends on conditions not
+  internally guaranteed).
+
+- The iε prescription (P057): The most consequential hidden parameter.
+  Determines the causal arrow of the entire Standard Model. Physically
+  justified only in U(1) electromagnetism via the Wheeler-Feynman absorber
+  condition.
+
+- The time-symmetry debt: The retarded propagator is chosen by hand in every
+  gauge sector but structurally justified only in one. The five-agent research
+  investigation mapped the shape of this debt across all sectors.
+
+- The experimental origin: Wheeler-Feynman absorber theory predicts that under
+  specific absorber-incomplete conditions (small antenna, atmospheric
+  absorption), advanced electromagnetic waves should be detectable. NMK 2015
+  (Phys Rev D) made this quantitative. Bajlo's contested 2016-2017
+  replication observed signals matching NMK's predictions. The dependency
+  graph is the theoretical map for this experimental program.
